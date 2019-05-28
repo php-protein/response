@@ -11,9 +11,9 @@
     ],
     "require": {
         "php": "^7.2",
-        "protein/event": "^1.0.0",
-        "protein/filter": "^1.0.0",
-        "protein/options": "^1.0.0"
+        "proteins/event": "^1.0.0",
+        "proteins/filter": "^1.0.0",
+        "proteins/options": "^1.0.0"
     },
     "autoload": {
         "psr-4": {
