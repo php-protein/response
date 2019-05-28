@@ -5,12 +5,12 @@
  *
  * Handles the HTTP Response for the current execution.
  *
- * @package Protein
+ * @package Proteins
  * @author  "Stefano Azzolini"  <lastguest@gmail.com>
  *
  */
 
-namespace Protein;
+namespace Proteins;
 
 class Response {
     use Events, Filters;

@@ -8,13 +8,13 @@
 ---
 
 ```
-composer require protein/response
+composer require proteins/response
 ```
 
 Require the class via :
 
 ```php
-use Protein\Response;
+use Proteins\Response;
 ```
 
 ### Appending data to the response
