@@ -62,7 +62,7 @@ class Response {
         case 'max': $when = "+1 year"; break;
         case 'always': $when = "-1 year"; break;
       }
-        static::header('Expires', gmdate('D, d M Y H:i:s \G\M\T', strtotime($when ?: "now")));
+        static::header('Expires', \gmdate('D, d M Y H:i:s \G\M\T', \strtotime($when ?: "now")));
     }
 
     /**
@@ -72,7 +72,7 @@ class Response {
      */
     public static function etag($what=null)
     {
-        $what && static::header('ETag', md5($what));
+        $what && static::header('ETag', \md5($what));
     }
 
     /**
@@ -93,7 +93,7 @@ class Response {
      */
     public static function start()
     {
-        static::$buffer = ob_start();
+        static::$buffer = \ob_start();
     }
 
     /**
@@ -115,16 +115,16 @@ class Response {
         }
 
         // Access-Control headers are received during OPTIONS requests
-        if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') == 'OPTIONS') {
+        if (\filter_input(INPUT_SERVER, 'REQUEST_METHOD') == 'OPTIONS') {
             static::clean();
 
-            if (filter_input(INPUT_SERVER, 'HTTP_ACCESS_CONTROL_REQUEST_METHOD')) {
+            if (\filter_input(INPUT_SERVER, 'HTTP_ACCESS_CONTROL_REQUEST_METHOD')) {
                 static::header(
                   'Access-Control-Allow-Methods',
                   'GET, POST, PUT, DELETE, OPTIONS, HEAD, CONNECT, PATCH, TRACE'
               );
             }
-            if ($req_h = filter_input(INPUT_SERVER, 'HTTP_ACCESS_CONTROL_REQUEST_HEADERS')) {
+            if ($req_h = \filter_input(INPUT_SERVER, 'HTTP_ACCESS_CONTROL_REQUEST_HEADERS')) {
                 static::header('Access-Control-Allow-Headers', $req_h);
             }
 
@@ -146,8 +146,8 @@ class Response {
     public static function end()
     {
         if (static::$buffer) {
-            static::$payload[] = ob_get_contents();
-            ob_end_clean();
+            static::$payload[] = \ob_get_contents();
+            \ob_end_clean();
             static::$buffer = null;
             return end(static::$payload);
         }
@@ -182,7 +182,7 @@ class Response {
     public static function json($payload) : string
     {
         static::type(static::TYPE_JSON);
-        return static::$payload[] = json_encode($payload, Options::get('core.response.json_flags', JSON_NUMERIC_CHECK|JSON_BIGINT_AS_STRING));
+        return static::$payload[] = \json_encode($payload, Options::get('core.response.json_flags', JSON_NUMERIC_CHECK|JSON_BIGINT_AS_STRING));
     }
 
     /**
@@ -194,7 +194,7 @@ class Response {
     public static function text(...$args) : string
     {
         static::type(static::TYPE_TEXT);
-        return static::$payload[] = implode('', $args);
+        return static::$payload[] = \implode('', $args);
     }
 
     /**
@@ -206,7 +206,7 @@ class Response {
     public static function xml(...$args) : string
     {
         static::type(static::TYPE_XML);
-        return static::$payload[] = implode('', $args);
+        return static::$payload[] = \implode('', $args);
     }
 
     /**
@@ -218,7 +218,7 @@ class Response {
     public static function svg(...$args) : string
     {
         static::type(static::TYPE_SVG);
-        return static::$payload[] = implode('', $args);
+        return static::$payload[] = \implode('', $args);
     }
 
     /**
@@ -230,7 +230,7 @@ class Response {
     public static function html(...$args) : string
     {
         static::type(static::TYPE_HTML);
-        return static::$payload[] = implode('', $args);
+        return static::$payload[] = \implode('', $args);
     }
 
     /**
@@ -248,11 +248,11 @@ class Response {
     {
         foreach ($args as $data) {
             switch (true) {
-                case is_callable($data):
+                case \is_callable($data):
                     return static::add($data());
-                case is_a($data, 'View'):
+                case \is_a($data, 'View'):
                     return static::$payload[] = "$data";
-                case is_object($data) || is_array($data) || is_bool($data):
+                case \is_object($data) || \is_array($data) || \is_bool($data):
                     return static::json($data);
                 default:
                     return static::$payload[] = $data;
@@ -296,7 +296,7 @@ class Response {
         }
         return static::filterWith(
           'response.body',
-          is_array(static::$payload) ? implode('', static::$payload) : static::$payload
+          \is_array(static::$payload) ? \implode('', static::$payload) : static::$payload
       );
     }
 
@@ -351,10 +351,10 @@ class Response {
         if (!static::$sent || $force) {
             static::$sent = true;
             static::trigger('send');
-            if (false === headers_sent()) {
+            if (false === \headers_sent()) {
                 foreach (static::$headers as $name => $family) {
                     foreach ($family as $value_code) {
-                        if (is_array($value_code)) {
+                        if (\is_array($value_code)) {
                             list($value, $code) = (count($value_code) > 1) ? $value_code : [current($value_code), 200];
                         } else {
                             $value = $value_code;
@@ -362,20 +362,20 @@ class Response {
                         }
                         switch ($name) {
               case "Status":
-                if (function_exists('http_response_code')) {
-                    http_response_code($code);
+                if (\function_exists('\http_response_code')) {
+                    \http_response_code($code);
                 } else {
-                    header("Status: $code", true, $code);
+                    \header("Status: $code", true, $code);
                 }
               break;
               case "Link":
-                  header("Link: $value", false);
+                  \header("Link: $value", false);
               break;
               default:
                 if ($code) {
-                    header("$name: $value", true, $code);
+                    \header("$name: $value", true, $code);
                 } else {
-                    header("$name: $value", true);
+                    \header("$name: $value", true);
                 }
               break;
             }
@@ -383,7 +383,7 @@ class Response {
                 }
             }
             if (static::$force_dl) {
-                header('Content-Disposition: attachment; filename="'.static::$force_dl.'"');
+                \header('Content-Disposition: attachment; filename="'.static::$force_dl.'"');
             }
             echo static::body();
             static::trigger('sent');
@@ -400,11 +400,11 @@ class Response {
      */
     public static function push($links, $type='text')
     {
-        if (is_array($links)) {
+        if (\is_array($links)) {
             foreach ($links as $_type => $link) {
                 // Extract URL basename extension (query-safe version)
-                if (is_numeric($_type)) {
-                    switch (strtolower(substr(strrchr(strtok(basename($link), '?'), '.'), 1))) {
+                if (\is_numeric($_type)) {
+                    switch (\strtolower(\substr(\strrchr(\strtok(\basename($link), '?'), '.'), 1))) {
                         case 'js': $_type = 'script'; break;
                         case 'css': $_type = 'style'; break;
                         case 'png': case 'svg': case 'gif': case 'jpg': $_type = 'image'; break;
