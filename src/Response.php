@@ -13,7 +13,7 @@
 namespace Proteins;
 
 class Response {
-    use Events, Filters;
+    use Events, Filters, Options;
 
     const TYPE_JSON               = 'application/json',
           TYPE_HTML               = 'text/html',
@@ -182,7 +182,7 @@ class Response {
     public static function json($payload) : string
     {
         static::type(static::TYPE_JSON);
-        return static::$payload[] = \json_encode($payload, Options::get('core.response.json_flags', JSON_NUMERIC_CHECK|JSON_BIGINT_AS_STRING));
+        return static::$payload[] = \json_encode($payload, static::option('json_flags', JSON_NUMERIC_CHECK|JSON_BIGINT_AS_STRING));
     }
 
     /**
